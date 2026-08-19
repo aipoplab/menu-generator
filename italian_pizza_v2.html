@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#C8313A">
+  <title>メニューボード プロンプトジェネレーター | イタリアン・ピッツェリア（JSON対応版）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #C8313A;        /* トマトレッド */
+      --accent:  #4A7A3D;        /* バジルグリーン */
+      --accent2: #D9A82E;        /* オリーブオイルゴールド */
+      --secondary: #FBF6EC;      /* モッツァレラホワイト */
+      --bg:     #FFFBF2;         /* 温かみのあるオフホワイト背景 */
+      --card:   #FFFFFF;         /* 白カード */
+      --text:   #3A2A1E;         /* 濃いブラウン（文字） */
+      --muted:  #A89884;         /* くすんだベージュグレー */
+      --border: #F0E0C8;         /* 淡いクリームボーダー */
+      --r:  16px;
+      --rs:  8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      background: linear-gradient(135deg, #C8313A 0%, #D9A82E 55%, #4A7A3D 100%);
+      padding: 2.2rem 1rem 2.8rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: ''; position: absolute;
+      top: -40px; left: -30px;
+      width: 140px; height: 140px;
+      border-radius: 50%; background: rgba(255,255,255,0.15);
+    }
+    header::after {
+      content: ''; position: absolute;
+      bottom: -50px; right: -20px;
+      width: 170px; height: 170px;
+      border-radius: 50%; background: rgba(255,255,255,0.15);
+    }
+    .header-emoji { font-size: 2.8rem; display: block; margin-bottom: 0.4rem; }
+    .header-title {
+      font-size: 1.7rem; font-weight: 800; color: #FFFFFF;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-bottom: 0.3rem;
+      letter-spacing: 0.02em;
+    }
+    .header-sub { font-size: 0.88rem; color: rgba(255,255,255,0.9); font-weight: 500; }
+
+    /* ===== ステップガイド ===== */
+    .steps { background: #FBF6EC; padding: 1.4rem 1rem; border-bottom: 2px dashed #F0E0C8; }
+    .steps-inner { max-width: 700px; margin: 0 auto; }
+    .steps-title {
+      font-size: 0.82rem; font-weight: 700; color: var(--muted);
+      text-align: center; margin-bottom: 0.9rem; letter-spacing: 0.05em;
+    }
+    .steps-list { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+    .step {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: #FFFFFF; border-radius: 50px;
+      padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 600;
+    }
+    .step-num {
+      background: var(--primary); color: #FFFFFF;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; flex-shrink: 0;
+    }
+
+    /* ===== コンテナ ===== */
+    .container { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+    /* ===== セクション ===== */
+    .section {
+      background: var(--card); border-radius: var(--r);
+      padding: 1.5rem; margin-bottom: 1.2rem; border: 2px solid var(--border);
+    }
+    .section-title {
+      font-size: 1rem; font-weight: 800; color: var(--primary);
+      margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* ===== フォーム要素 ===== */
+    .field-label {
+      display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem;
+    }
+    .optional { font-size: 0.75rem; font-weight: 500; color: var(--muted); margin-left: 0.3rem; }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 0.6rem 0.8rem;
+      border: 2px solid #F0E0C8; border-radius: var(--rs);
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 0.95rem; color: #3A2A1E; background: #FFFFFF;
+      transition: border-color 0.2s; outline: none;
+    }
+    input[type="text"]::placeholder, input[type="number"]::placeholder { color: #C0B098; }
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: var(--primary); background: #FFFCF5;
+    }
+    .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ===== チップ選択 ===== */
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip-label { cursor: pointer; }
+    .chip-label input[type="radio"] { display: none; }
+    .chip-btn {
+      display: inline-block; padding: 0.45rem 1rem;
+      border-radius: 50px; border: 2px solid #F0E0C8;
+      background: #FFFFFF; font-size: 0.85rem; font-weight: 600;
+      color: var(--muted); transition: all 0.2s; user-select: none;
+    }
+    .chip-label input:checked + .chip-btn {
+      background: var(--primary); border-color: transparent; color: #FFFFFF;
+    }
+
+    /* ===== 品目テーブル ===== */
+    .items-header {
+      display: grid; grid-template-columns: 1fr 110px 90px 32px;
+      gap: 0.5rem; font-size: 0.78rem; font-weight: 700; color: var(--muted);
+      padding: 0 0.2rem 0.5rem; border-bottom: 2px solid var(--border); margin-bottom: 0.4rem;
+    }
+    .item-row {
+      display: grid; grid-template-columns: 1fr 110px 90px 32px;
+      gap: 0.5rem; align-items: center;
+      padding: 0.45rem 0; border-bottom: 1px dashed var(--border);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-price-wrap { position: relative; }
+    .item-price-wrap input { padding-right: 1.8rem; }
+    .yen { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+           font-size: 0.8rem; color: var(--muted); font-weight: 700; pointer-events: none; }
+
+    /* ===== 画像アップロード ===== */
+    .img-area {
+      width: 84px; height: 48px;
+      border: 2px dashed #F0E0C8; border-radius: var(--rs);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+      background: #FFFFFF; margin: 0;
+      -webkit-tap-highlight-color: rgba(200,49,58,0.15);
+    }
+    .img-area:hover, .img-area.dragover { border-color: var(--primary); background: #FBEAEA; }
+    .img-area:active { transform: scale(0.97); }
+    .img-area input[type="file"] {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+      font-size: 0;
+      -webkit-appearance: none;
+    }
+    .img-placeholder {
+      font-size: 0.72rem; color: var(--muted); text-align: center;
+      line-height: 1.3; pointer-events: none; font-weight: 600;
+    }
+    .img-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .img-badge {
+      position: absolute; bottom: 2px; right: 2px;
+      font-size: 0.55rem; background: var(--accent2); color: #3A2A1E;
+      padding: 1px 3px; border-radius: 3px; font-weight: 700; white-space: nowrap;
+      pointer-events: none;
+    }
+    .img-loading {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; color: var(--accent);
+      pointer-events: none;
+    }
+    .img-clear {
+      position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(0,0,0,0.5); color: #FFFFFF; border: none;
+      font-size: 0.7rem; line-height: 1; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      z-index: 2; padding: 0;
+    }
+    .img-area.has-image .img-clear { display: flex; }
+
+    /* ===== ボタン ===== */
+    .btn-delete {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      font-size: 1rem; padding: 0.25rem; border-radius: 4px;
+      transition: color 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-delete:hover { color: var(--primary); }
+
+    .btn-add {
+      margin-top: 1rem; background: none; border: 2px dashed var(--accent);
+      color: #2A5A20; border-radius: 50px; padding: 0.5rem 1.3rem;
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .btn-add:hover { background: var(--accent); color: #FFFFFF; border-color: var(--accent); }
+
+    .btn-generate {
+      width: 100%; padding: 1.05rem;
+      background: linear-gradient(135deg, #C8313A, #E0524A);
+      color: #FFFFFF; border: none; border-radius: var(--r);
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 1.1rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 18px rgba(200,49,58,0.35);
+      margin-bottom: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(200,49,58,0.5); }
+    .btn-generate:active { transform: translateY(0); }
+
+    /* ===== AIサービスで開くボタン ===== */
+    .ai-btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      margin-bottom: 0.5rem;
+    }
+    .btn-ai {
+      padding: 1.05rem 1rem;
+      color: white; border: none; border-radius: var(--r);
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.05rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.4rem; white-space: nowrap;
+    }
+    .btn-gemini {
+      background: linear-gradient(135deg, #4D96FF, #6BA8FF);
+      box-shadow: 0 4px 18px rgba(77,150,255,0.4);
+    }
+    .btn-gemini:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 24px rgba(77,150,255,0.55);
+    }
+    .btn-chatgpt {
+      background: linear-gradient(135deg, #10A37F, #1FBE92);
+      box-shadow: 0 4px 18px rgba(16,163,127,0.4);
+    }
+    .btn-chatgpt:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 24px rgba(16,163,127,0.55);
+    }
+    .btn-ai:active:not(:disabled) { transform: translateY(0); }
+    .btn-ai:disabled {
+      background: #F0E0C8; color: #C0B098;
+      box-shadow: none; cursor: not-allowed;
+    }
+    .ai-btn-hint {
+      font-size: 0.78rem; color: var(--muted);
+      text-align: center; margin-bottom: 1.5rem; line-height: 1.6;
+      padding: 0 0.5rem;
+    }
+
+    /* ===== リセットボタン ===== */
+    .reset-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.6rem;
+    }
+    .btn-reset {
+      background: transparent;
+      border: 1.5px solid #F0E0C8;
+      color: var(--muted);
+      border-radius: 50px;
+      padding: 0.45rem 1rem;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      -webkit-tap-highlight-color: rgba(200,49,58,0.15);
+    }
+    .btn-reset:hover {
+      background: #FBF6EC;
+      color: var(--text);
+      border-color: #F0E0C8;
+    }
+    .btn-reset:active { transform: scale(0.97); }
+
+    /* ===== トースト通知 ===== */
+    .toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--accent2); color: #3A2A1E;
+      padding: 0.85rem 1.6rem; border-radius: 50px;
+      font-size: 0.95rem; font-weight: 700;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+      opacity: 0; transition: all 0.3s ease;
+      z-index: 9999; pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== 出力エリア ===== */
+    .output-section { display: none; }
+    .output-section.visible { display: block; }
+
+    .img-notice {
+      background: #FBEAEA; border: 2px solid var(--primary);
+      border-radius: var(--rs); padding: 0.85rem 1.1rem;
+      margin-bottom: 1rem; font-size: 0.88rem; font-weight: 700; color: #A8313A;
+      display: none; align-items: flex-start; gap: 0.5rem;
+    }
+    .img-notice.visible { display: flex; }
+    .img-notice-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+    .prompt-box {
+      background: #FBF6EC; border-radius: var(--rs); padding: 1rem; margin-bottom: 0.75rem;
+    }
+    .prompt-text {
+      width: 100%; background: transparent; border: none; color: #3A2A1E;
+      font-family: 'Courier New', monospace; font-size: 0.83rem; line-height: 1.85;
+      resize: vertical; min-height: 220px; outline: none;
+    }
+
+    .btn-copy {
+      background: var(--accent); color: #FFFFFF; border: none; border-radius: var(--rs);
+      padding: 0.55rem 1.3rem; font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .btn-copy:hover { background: #3A6A2D; }
+    .btn-copy.copied { background: var(--primary); color: #FFFFFF; }
+
+    .guide {
+      background: #FBF6EC; border-radius: var(--rs); padding: 1rem 1.2rem;
+      margin-top: 1rem; font-size: 0.84rem; line-height: 1.9; color: var(--muted);
+      border: 1px dashed #F0E0C8;
+    }
+    .guide-title { font-weight: 800; font-size: 0.88rem; color: var(--text); margin-bottom: 0.5rem; }
+    .guide ol { padding-left: 1.3rem; }
+    .guide li { margin-bottom: 0.15rem; }
+    .guide .link-hint {
+      display: inline-block; background: #FBF6EC; color: var(--primary);
+      border-radius: 4px; padding: 0.1rem 0.5rem; font-weight: 700; font-size: 0.82rem;
+      border: 1px solid #F0E0C8;
+    }
+
+    /* ===== 注意書き ===== */
+    .notes {
+      background: #FCF2D0; border: 2px solid #D9A82E; border-radius: var(--rs);
+      padding: 1rem 1.2rem; font-size: 0.79rem; color: #8A6010; line-height: 1.9;
+    }
+    .notes-title { font-weight: 800; font-size: 0.83rem; margin-bottom: 0.5rem; }
+
+    /* ===== 透かしガイド ===== */
+    .watermark-guide {
+      border: 2px solid #F0E0C8;
+      border-radius: var(--rs);
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+    .watermark-guide summary {
+      padding: 0.8rem 1.1rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      background: #FFFFFF;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .watermark-guide summary::-webkit-details-marker { display: none; }
+    .watermark-guide summary:hover { background: #FBF6EC; }
+    .watermark-guide[open] summary { border-bottom: 2px dashed #F0E0C8; }
+    .watermark-guide summary .toggle-arrow { font-size: 0.75rem; color: var(--muted); }
+    .watermark-guide[open] summary .toggle-arrow::before { content: '▲'; }
+    .watermark-guide:not([open]) summary .toggle-arrow::before { content: '▼'; }
+    .watermark-body {
+      padding: 1.1rem 1.2rem;
+      font-size: 0.88rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: #FFFFFF;
+    }
+    .watermark-body .intro {
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .watermark-method { margin-bottom: 1rem; }
+    .watermark-method:last-of-type { margin-bottom: 0.75rem; }
+    .watermark-method .method-title {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+    .watermark-method p { font-size: 0.86rem; color: var(--text); }
+    .watermark-note {
+      margin-top: 0.9rem;
+      padding: 0.65rem 0.9rem;
+      background: #FBF6EC;
+      border-radius: var(--rs);
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ===== フッター ===== */
+    footer { text-align: center; padding: 2rem 1rem; font-size: 0.75rem; color: var(--muted); }
+
+    /* ===== レスポンシブ（スマホ用カードレイアウト） ===== */
+    @media (max-width: 580px) {
+      body { font-size: 16px; }
+      .container { padding: 1rem 0.7rem 3rem; }
+      .section { padding: 1.1rem; border-radius: 14px; }
+      .row-2col { grid-template-columns: 1fr; }
+      .header-title { font-size: 1.3rem; }
+      .header-sub { font-size: 0.78rem; }
+      .steps-list { flex-direction: column; align-items: stretch; }
+      .step { justify-content: flex-start; }
+
+      input[type="text"], input[type="number"] {
+        font-size: 16px;
+        padding: 0.7rem 0.8rem;
+      }
+
+      .items-header { display: none; }
+      .item-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "name   delete"
+          "price  image";
+        gap: 0.5rem 0.6rem;
+        padding: 0.8rem 0;
+        border-bottom: 2px dashed var(--border);
+        align-items: center;
+      }
+      .item-row .item-name { grid-area: name; }
+      .item-row .item-price-wrap { grid-area: price; max-width: 140px; }
+      .item-row .img-area { grid-area: image; width: 96px; height: 56px; justify-self: end; }
+      .item-row .btn-delete {
+        grid-area: delete;
+        width: 36px; height: 36px;
+        justify-self: end;
+      }
+
+      .chip-btn { padding: 0.55rem 1rem; font-size: 0.9rem; }
+      .btn-generate { padding: 1.1rem; font-size: 1.05rem; }
+      .ai-btn-row { grid-template-columns: 1fr; }
+      .btn-ai { padding: 1.1rem; font-size: 1rem; }
+      .ai-btn-hint { font-size: 0.75rem; margin-bottom: 1.2rem; }
+      .toast { bottom: 20px; padding: 0.75rem 1.3rem; font-size: 0.88rem; }
+      .btn-reset { font-size: 0.82rem; padding: 0.5rem 1rem; }
+      .prompt-text { font-size: 0.82rem; min-height: 240px; }
+      .btn-copy { padding: 0.7rem 1.4rem; font-size: 0.95rem; width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+<header>
+  <span class="header-emoji">🍕</span>
+  <div class="header-title">メニューボード プロンプトジェネレーター</div>
+  <div class="header-sub">ピザ・パスタ・トラットリア向け ／ Gemini・ChatGPT 画像生成用</div>
+</header>
+
+<!-- ===== ステップガイド ===== -->
+<div class="steps">
+  <div class="steps-inner">
+    <div class="steps-title">📋 かんたん3ステップで使えます</div>
+    <div class="steps-list">
+      <div class="step"><div class="step-num">1</div><span>メニュー情報を入力する</span></div>
+      <div class="step"><div class="step-num">2</div><span>プロンプトを生成する</span></div>
+      <div class="step"><div class="step-num">3</div><span>Gemini または ChatGPT に貼り付ける</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== メインコンテンツ ===== -->
+<div class="container">
+
+  <!-- 基本情報 -->
+  <div class="section">
+    <div class="section-title">🏪 基本情報</div>
+    <div class="row-2col">
+      <div>
+        <label class="field-label">お店の名前 <span class="optional">（任意）</span></label>
+        <input type="text" id="shopName" placeholder="例：トラットリア ベラ・ナポリ">
+      </div>
+      <div>
+        <label class="field-label">カテゴリ名</label>
+        <input type="text" id="categoryName" placeholder="例：本日のおすすめ、前菜・パスタ・ピザ、シェフのスペシャル">
+      </div>
+    </div>
+  </div>
+
+  <!-- 品目リスト -->
+  <div class="section">
+    <div class="section-title">🍽️ 品目リスト</div>
+    <div class="items-header">
+      <div>メニュー名</div>
+      <div>値段</div>
+      <div>画像（任意）</div>
+      <div></div>
+    </div>
+    <div id="itemsList"></div>
+    <button type="button" class="btn-add" onclick="addItem()">＋ 品目を追加する</button>
+  </div>
+
+  <!-- デザイン設定 -->
+  <div class="section">
+    <div class="section-title">🎨 デザイン設定</div>
+    <div style="margin-bottom:1.2rem">
+      <label class="field-label">ボードサイズ</label>
+      <div class="chips">
+        <label class="chip-label">
+          <input type="radio" name="boardSize" value="square" checked>
+          <span class="chip-btn">🟦 正方形（Instagram 1:1）</span>
+        </label>
+        <label class="chip-label">
+          <input type="radio" name="boardSize" value="vertical">
+          <span class="chip-btn">📱 縦長（ストーリー・A4 9:16）</span>
+        </label>
+        <label class="chip-label">
+          <input type="radio" name="boardSize" value="horizontal">
+          <span class="chip-btn">🖥️ 横長（チラシ・POP 16:9）</span>
+        </label>
+      </div>
+    </div>
+    <div>
+      <label class="field-label">文字スタイル</label>
+      <div class="chips">
+        <label class="chip-label">
+          <input type="radio" name="fontStyle" value="handwritten" checked>
+          <span class="chip-btn">✏️ 手書き風</span>
+        </label>
+        <label class="chip-label">
+          <input type="radio" name="fontStyle" value="mincho">
+          <span class="chip-btn">　明朝系</span>
+        </label>
+        <label class="chip-label">
+          <input type="radio" name="fontStyle" value="gothic">
+          <span class="chip-btn">𝐀 ゴシック系</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- リセットボタン -->
+  <div class="reset-wrap">
+    <button type="button" class="btn-reset" onclick="resetAll()">🗑️ リセット</button>
+  </div>
+
+  <!-- 生成ボタン -->
+  <button type="button" class="btn-generate" onclick="generatePrompt()">✨ プロンプトを生成する ✨</button>
+
+  <!-- AIで開くボタン -->
+  <div class="ai-btn-row">
+    <button type="button" class="btn-ai btn-gemini"  id="btnGemini"  onclick="openInGemini()"  disabled>🍌 コピーしてGeminiで開く</button>
+    <button type="button" class="btn-ai btn-chatgpt" id="btnChatGPT" onclick="openInChatGPT()" disabled>🤖 コピーしてChatGPTで開く</button>
+  </div>
+  <div class="ai-btn-hint">※ ボタンを押すとプロンプトが自動でコピーされます。<br>Gemini：タブが開いたら「🍌 画像を作成」を選んで貼り付け／ChatGPT：チャット画面に直接貼り付け（Ctrl + V、Macは ⌘ + V）</div>
+
+  <!-- 出力エリア -->
+  <div class="output-section" id="outputSection">
+    <div class="section">
+      <div class="section-title">📋 生成されたプロンプト</div>
+
+      <div class="img-notice" id="imgNotice">
+        <span class="img-notice-icon">📎</span>
+        <div>
+          <strong>画像も一緒にGeminiに送ってください！</strong><br>
+          画像アップロードした品目があります。Geminiのチャット画面でプロンプトと一緒に画像も添付して送信すると、よりイメージに近いメニューボードが生成されます。
+        </div>
+      </div>
+
+      <div class="prompt-box">
+        <textarea class="prompt-text" id="promptText" readonly></textarea>
+      </div>
+      <button type="button" class="btn-copy" onclick="copyPrompt(this)">📋 コピーする</button>
+
+      <div class="guide">
+        <div class="guide-title">🍌 Gemini（Nano Banana）での使い方</div>
+        <ol>
+          <li><span class="link-hint">gemini.google.com</span> をブラウザで開く（Googleアカウントでログイン）</li>
+          <li>左メニューまたは入力欄のツールから「🍌 画像を作成」を選択する</li>
+          <li>コピーしたプロンプトを貼り付ける（画像ありの場合は画像も添付）</li>
+          <li>送信すると数秒でメニューボード画像が生成される</li>
+          <li>気に入った画像をダウンロードして、必要に応じて店名や価格を修正して完成！</li>
+        </ol>
+      </div>
+
+      <div class="guide">
+        <div class="guide-title">🤖 ChatGPT（GPT-4o画像生成）での使い方</div>
+        <ol>
+          <li><span class="link-hint">chatgpt.com</span> をブラウザで開く（OpenAIアカウントでログイン）</li>
+          <li>チャット入力欄にコピーしたプロンプトを貼り付ける（画像ありの場合はクリップから画像も添付）</li>
+          <li>送信すると数十秒〜数分でメニューボード画像が生成される</li>
+          <li>結果が思い通りでない場合は「もっと〜にして」と追加で指示して微調整できる</li>
+          <li>画像をダウンロードして、必要に応じて店名や価格を修正して完成！</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- 注意書き -->
+  <div class="notes">
+    <div class="notes-title">⚠️ ご注意</div>
+    ・生成されたプロンプトはたたき台です。毎回異なる結果が出ます。<br>
+    ・小さい文字や補足テキストは崩れることがあります。<br>
+    ・指示していないメニューや店名が自動補完される場合があります（プロンプトには厳禁ルールを入れていますが、完全には防げません）。<br>
+    ・Geminiの無料プランで生成した画像にはロゴ（透かし）が入ります。<br>
+    ・商用利用については各AIサービスの利用規約をご確認ください。<br>
+    ・各AIサービスの無料プランの生成枚数は変更される場合があります。
+  </div>
+
+  <!-- 透かしの消し方ガイド -->
+  <details class="watermark-guide">
+    <summary>
+      <span>💡 Geminiロゴ（透かし）の消し方</span>
+      <span class="toggle-arrow"></span>
+    </summary>
+    <div class="watermark-body">
+      <p class="intro">
+        無料プランで生成した画像の右下にはGeminiのロゴマークが入ります。<br>
+        このロゴはトリミング（切り取り）で除去しても規約違反にはなりません。
+      </p>
+
+      <div class="watermark-method">
+        <div class="method-title">■ 方法①　スマホ・PCの写真アプリでトリミング（最も簡単）</div>
+        <p>右下のロゴ部分が切れるように、画像を少し小さくトリミングするだけ。<br>
+        iPhoneなら「写真アプリ → 編集 → トリミング」、<br>
+        Androidなら「Googleフォト → 編集 → 切り抜き」で対応できます。</p>
+      </div>
+
+      <div class="watermark-method">
+        <div class="method-title">■ 方法②　Googleフォトの「消しゴムマジック」で除去（無料）</div>
+        <p>Googleフォトに画像をアップロードし、<br>
+        「編集 → ツール → 消しゴムマジック」でロゴ部分をタップするだけで消せます。</p>
+      </div>
+
+      <div class="watermark-method">
+        <div class="method-title">■ 方法③　Chrome拡張「Banana Clean」（PC・無料15回まで）</div>
+        <p>ChromeウェブストアでBanana Cleanをインストールすると、<br>
+        Geminiでのダウンロード時に自動でロゴを除去してくれます。</p>
+      </div>
+
+      <div class="watermark-note">
+        ※ 画像データ内部に埋め込まれたSynthID（AI生成の証明情報）は削除できませんが、見た目には影響しません。
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<script>
+// ===== 定数 =====
+const VIBE = {
+  style:      "陽気で開放的な、イタリアン・トラットリア風の",
+  background: "イタリアの国旗を思わせる赤・緑・白を基調にした、地中海の陽光を感じる明るい背景。モッツァレラやトマトソースを思わせる温かみのある色使い",
+  typography: "イタリック調のエレガントな書体、または親しみやすい丸みのある文字",
+  decoration: "トマト、バジル、オリーブ、小麦、ピザやパスタのシルエットなどイタリアらしいモチーフ。陽気で開放的な装飾",
+  atmosphere: "イタリアのトラットリアやピッツェリアのような、陽気で本格的、でも親しみやすい雰囲気。家族経営のレストランの温かさを演出。価格はトマトレッドやバジルグリーンで親しみやすく表示"
+};
+
+const SIZE_SPEC = {
+  square:     "正方形（1:1）、Instagram投稿サイズ",
+  vertical:   "縦長（9:16）、ストーリーまたはA4縦サイズ",
+  horizontal: "横長（16:9）、チラシまたは店頭POPサイズ"
+};
+
+const LAYOUT_GUIDE = {
+  square: [
+    "キャンバス全体（上下左右の隅まで）を均等に使い、不自然に大きな空白を作らないこと",
+    "上部にヘッダー（店名・カテゴリ見出し）、中央にメニュー本体、下部に控えめな装飾という3段構成でバランスよく配置",
+    "メニュー項目同士の行間は均等にし、品数に応じて自動で調整すること（中央に詰まって上下に大きな空白を作らない）"
+  ],
+  vertical: [
+    "縦長キャンバスの上端から下端までを一連のデザインとして使い、上下に意図しない大きな余白を作らないこと",
+    "縦方向に【上部：ヘッダー（店名・カテゴリ見出し）／中央：メニュー本体／下部：指定済みの小さな装飾やイラスト】の3〜4ブロックで分散配置すること",
+    "メニュー項目は縦方向に均等な間隔で配置し、品数が少なくても各項目の文字サイズと行間を大きめに取って画面全体を埋めること",
+    "背景や装飾の指定要素は上下方向にバランスよく散らし、画面の上半分または下半分が無地のまま空かないようにすること"
+  ],
+  horizontal: [
+    "横長キャンバスの左端から右端までを使い、左右どちらかに偏った大きな空白を作らないこと",
+    "横方向に【左：店名・カテゴリ見出しや装飾／右：メニュー本体】、または【左右2カラム】のレイアウトで配置すること",
+    "メニュー項目は横幅に対して読みやすいサイズで配置し、上下の余白も均等にすること"
+  ]
+};
+
+const FONT_STYLE = {
+  handwritten: "手書き風",
+  mincho:      "明朝系",
+  gothic:      "ゴシック系"
+};
+
+// ===== 品目管理 =====
+let idCounter = 0;
+
+function addItem() {
+  const id = ++idCounter;
+  const list = document.getElementById('itemsList');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.id = `item-${id}`;
+  row.innerHTML = `
+    <input type="text" class="item-name" placeholder="例：マルゲリータピザ" autocomplete="off">
+    <div class="item-price-wrap">
+      <input type="number" class="item-price" placeholder="1200" min="0" inputmode="numeric" pattern="[0-9]*">
+      <span class="yen">円</span>
+    </div>
+    <label class="img-area" id="area-${id}">
+      <input type="file" class="item-file" accept="image/*">
+      <div class="img-placeholder" id="ph-${id}">📷<br>追加</div>
+      <button type="button" class="img-clear" aria-label="画像を削除">✕</button>
+    </label>
+    <button type="button" class="btn-delete" title="削除">✕</button>
+  `;
+  list.appendChild(row);
+
+  const fileInput = row.querySelector('.item-file');
+  const area      = row.querySelector('.img-area');
+  const clearBtn  = row.querySelector('.img-clear');
+  const deleteBtn = row.querySelector('.btn-delete');
+
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if (file) applyImage(id, file);
+  });
+
+  clearBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    clearImage(id);
+  });
+
+  deleteBtn.addEventListener('click', () => removeItem(id));
+
+  area.addEventListener('dragover', e => {
+    e.preventDefault();
+    area.classList.add('dragover');
+  });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) applyImage(id, file);
+  });
+}
+
+function removeItem(id) {
+  const el = document.getElementById(`item-${id}`);
+  if (el) el.remove();
+}
+
+// ===== 画像処理 =====
+const MAX_DIMENSION = 1200;
+const JPEG_QUALITY  = 0.85;
+
+function applyImage(id, file) {
+  const area = document.getElementById(`area-${id}`);
+  const ph   = document.getElementById(`ph-${id}`);
+
+  if (file.size > 30 * 1024 * 1024) {
+    alert('画像ファイルが大きすぎます（30MBまで）。\n別の画像を選んでください。');
+    return;
+  }
+
+  ph.innerHTML = '<div class="img-loading">処理中…</div>';
+
+  const reader = new FileReader();
+  reader.onerror = () => {
+    ph.innerHTML = '📷<br>追加';
+    alert('画像の読み込みに失敗しました。別の画像をお試しください。');
+  };
+  reader.onload = e => {
+    const img = new Image();
+    img.onerror = () => {
+      ph.innerHTML = '📷<br>追加';
+      alert('画像を表示できません。別の画像をお試しください。');
+    };
+    img.onload = () => {
+      try {
+        const dataUrl = resizeImage(img, MAX_DIMENSION, JPEG_QUALITY);
+        ph.innerHTML = `<img class="img-thumb" src="${dataUrl}" alt="preview"><span class="img-badge">📷</span>`;
+        area.classList.add('has-image');
+        area.dataset.hasImage = 'true';
+      } catch (err) {
+        ph.innerHTML = '📷<br>追加';
+        alert('画像の処理中にエラーが発生しました。');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function resizeImage(img, maxDim, quality) {
+  let { width, height } = img;
+  if (width > maxDim || height > maxDim) {
+    if (width >= height) {
+      height = Math.round(height * (maxDim / width));
+      width  = maxDim;
+    } else {
+      width  = Math.round(width * (maxDim / height));
+      height = maxDim;
+    }
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width  = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', quality);
+}
+
+function clearImage(id) {
+  const area = document.getElementById(`area-${id}`);
+  const ph   = document.getElementById(`ph-${id}`);
+  const fileInput = area.querySelector('.item-file');
+  ph.innerHTML = '📷<br>追加';
+  fileInput.value = '';
+  area.classList.remove('has-image');
+  delete area.dataset.hasImage;
+}
+
+// ===== プロンプト生成 =====
+function generatePrompt() {
+  const shopName  = document.getElementById('shopName').value.trim();
+  const category  = document.getElementById('categoryName').value.trim() || 'メニュー';
+  const boardSize = document.querySelector('input[name="boardSize"]:checked').value;
+  const fontKey   = document.querySelector('input[name="fontStyle"]:checked').value;
+
+  const rows = document.querySelectorAll('.item-row');
+  const items = [];
+  const photoItems = [];
+
+  rows.forEach(row => {
+    const name  = row.querySelector('.item-name').value.trim();
+    const price = row.querySelector('.item-price').value.trim();
+    const area  = row.querySelector('.img-area');
+    const hasImage = area.dataset.hasImage === 'true';
+    if (name) {
+      items.push({ name, price, hasImage });
+      if (hasImage) photoItems.push(name);
+    }
+  });
+
+  if (items.length === 0) {
+    alert('メニュー名を最低1つ入力してください。');
+    return;
+  }
+
+  const sizeText = SIZE_SPEC[boardSize];
+  const fontText = FONT_STYLE[fontKey];
+
+  // プロンプト組み立て
+  // 要件をジェネレーター側でJSON形式に構造化して出力する。
+  // AI側に「JSONを整理してから生成」と指示するとGeminiがテキスト回答モードに
+  // 入ってしまうため、指示文は純粋な画像生成依頼のみとし、JSONは完成品を渡す。
+  //
+  // 「表示する文字列」と「指示文」の分離が最重要：
+  // JSONの値に括弧書きの指示や「」を混ぜると、そのまま画像に描画されてしまう
+  // （例：カギ括弧付きの店名、「元画像-1」のような注記ラベル）。
+  // 表示対象は display_text 配下の値のみとし、指示はすべて instructions/rules に置く。
+  const promptObj = {
+    task: `${VIBE.style}メニューボード画像を1枚生成する`,
+    design: {
+      size: sizeText,
+      background: `${VIBE.background}。キャンバスの上下左右の端まで途切れず連続させ、画面全体に行き渡らせること。大きなベタ塗りの単色領域を作らないこと`,
+      typography: `${fontText}、${VIBE.typography}`,
+      decoration: `${VIBE.decoration}。layoutの指示に従い、キャンバス内にバランスよく分散配置すること`,
+      atmosphere: VIBE.atmosphere
+    },
+    layout: LAYOUT_GUIDE[boardSize].slice(),
+    display_text: {
+      shop_name: shopName || null,
+      category_heading: category,
+      menu_items: items.map(item => ({
+        name: item.name,
+        price: item.price ? `${item.price}円` : null
+      }))
+    },
+    display_text_instructions: [
+      '画像に文字として描いてよいのは、display_text内のshop_name・category_heading・menu_itemsのname・priceの値だけ。それ以外の文字列（このJSONのキー名・指示文・注記を含む）は一切描かないこと。',
+      shopName
+        ? 'shop_nameは上部に大きく表示すること。'
+        : 'shop_nameがnullのため、店名は一切書かないこと。架空の店名も作らないこと。',
+      'priceがnullの品目は、価格を表示しないこと（ダミー価格を作らない）。',
+      'display_textの値を表示する際、値に含まれない括弧・カギ括弧・引用符・番号・ラベルを付け足さないこと。',
+      'menu_itemsは記載順に表示すること。'
+    ],
+    ...(photoItems.length > 0 ? {
+      attached_photos: {
+        mapping: photoItems.map((name, i) => ({ photo_number: i + 1, used_for_menu_item: name })),
+        rules: [
+          '添付写真は、mappingで対応付けたメニュー品目のビジュアル素材として、元写真のまま使用すること',
+          '写真の対応関係（mapping）やphoto_numberを、文字やラベルとして画像内に描き込まないこと',
+          '添付されていないメニューには、料理写真やイラストを勝手に追加しないこと',
+          '添付画像に対して許可される処理は、拡大・縮小・必要な範囲のクロップ（切り抜き）のみ',
+          '添付画像の色味・明るさ・コントラスト・彩度・色相・ホワイトバランスを変更しないこと',
+          '添付画像にフィルター・エフェクト・テクスチャ・グラデーション・光彩・ぼかし等を加えないこと',
+          '添付画像内の料理の形状・盛り付け・色・質感・食材構成を一切改変・差し替えしないこと',
+          '添付画像を別の絵柄（イラスト・アニメ・絵画・水彩・3DCG・スケッチ等）に変換しないこと',
+          '添付画像内の被写体をAIで描き直したり、似た別の料理に置き換えたりしないこと',
+          '添付画像の背景を別の背景に変更・合成しないこと（必要な場合はクロップで対応すること）'
+        ]
+      }
+    } : {}),
+    strict_rules: [
+      'テキストはdisplay_textに記載したものだけを表示すること。それ以外の文字を一切追加しないこと。',
+      '架空のメニュー名・価格・キャッチコピー・説明文・注意書きを補完したり創作したりしないこと。',
+      '指定していない店名・ロゴ・住所・電話番号・URL・QRコード・SNSアイコン・営業時間・日付・OPEN・NEWなどの追加文言を画像内に含めないこと。',
+      '指定していない人物・スタッフ・キャラクター・マスコットを画像内に登場させないこと。',
+      '添付画像が指定されたメニュー以外には、料理写真・食材写真・イラストを勝手に付けないこと。',
+      'メニュー名・価格・店名・カテゴリ名は、display_textの文字列を漢字・ひらがな・カタカナ・アルファベット・数字・記号まで一字一句正確に再現すること（誤字・置換・翻訳・略字化を禁止）。',
+      'designで指定した範囲を超える追加の装飾要素（料理写真・人物イラスト・スタンプ・吹き出し・新しいモチーフ等）を勝手に加えないこと。ただしdesignで指定済みの装飾（トマト、バジル、オリーブ、小麦、ピザやパスタのシルエットなど）は、layoutの指示に従ってキャンバス内にバランスよく分散配置してよい。',
+      '余白を埋めるためだけのダミーテキスト・ロレムイプサム・PizzaやPasta、Trattoria等の英語見出しを勝手に追加しないこと。',
+      '添付された画像は、拡大・縮小・クロップ以外の加工を一切行わないこと（色補正・フィルター・エフェクト・スタイル変換・被写体の描き直し・背景合成すべて禁止）。元の写真をそのままメニューボード上に貼り付ける形で配置すること。',
+      '装飾モチーフ（国旗モチーフ・テーブルクロス柄・ピザ窯・ハーブの葉・瓶・タグ・スタンプ・飾り枠・吹き出し・リボン・シール等）の中に、display_textのshop_name・category_heading・menu_itemsのname・price以外の文字（漢字・ひらがな・カタカナ・アルファベット・数字・記号・社名・屋号・縁起文句・キャッチコピー・読めない文字風の模様を含む）を一切描き込まないこと。飾り枠は無地または抽象的な模様のみで構成すること。',
+      'display_textに記載のないものは一切画像に含めないこと。これは最優先のルールである。'
+    ]
+  };
+
+  const lines = [];
+  lines.push('以下のJSONプロンプトに忠実に従って、メニューボード画像を1枚生成してください。');
+  lines.push('');
+  lines.push(JSON.stringify(promptObj, null, 2));
+
+  document.getElementById('promptText').value = lines.join('\n');
+
+  const notice = document.getElementById('imgNotice');
+  notice.classList.toggle('visible', photoItems.length > 0);
+
+  const output = document.getElementById('outputSection');
+  output.classList.add('visible');
+  setTimeout(() => output.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+
+  document.getElementById('btnGemini').disabled  = false;
+  document.getElementById('btnChatGPT').disabled = false;
+}
+
+// ===== コピー =====
+function copyPrompt(btn) {
+  const text = document.getElementById('promptText').value;
+  const orig = btn.innerHTML;
+
+  const finish = () => {
+    btn.innerHTML = '✅ コピーしました！';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+  };
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(finish));
+  } else {
+    fallbackCopy(finish);
+  }
+}
+
+function fallbackCopy(callback) {
+  const el = document.getElementById('promptText');
+  el.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  callback();
+}
+
+// ===== AIサービスで開く =====
+function copyAndOpen(url) {
+  const text = document.getElementById('promptText').value;
+  if (!text) return;
+
+  window.open(url, '_blank', 'noopener,noreferrer');
+
+  const proceed = () => showToast('✅ コピーしました！貼り付けて使ってください');
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(proceed).catch(() => fallbackCopy(proceed));
+  } else {
+    fallbackCopy(proceed);
+  }
+}
+
+function openInGemini() {
+  copyAndOpen('https://gemini.google.com');
+}
+
+function openInChatGPT() {
+  copyAndOpen('https://chatgpt.com');
+}
+
+// ===== トースト通知 =====
+let toastTimer = null;
+function showToast(message) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ===== リセット =====
+function resetAll() {
+  if (!confirm('入力内容をすべてリセットしますか？')) return;
+
+  document.getElementById('shopName').value = '';
+  document.getElementById('categoryName').value = '';
+
+  document.getElementById('itemsList').innerHTML = '';
+  idCounter = 0;
+  for (let i = 0; i < 3; i++) addItem();
+
+  const sqRadio = document.querySelector('input[name="boardSize"][value="square"]');
+  if (sqRadio) sqRadio.checked = true;
+
+  const hwRadio = document.querySelector('input[name="fontStyle"][value="handwritten"]');
+  if (hwRadio) hwRadio.checked = true;
+
+  document.getElementById('promptText').value = '';
+  document.getElementById('outputSection').classList.remove('visible');
+  document.getElementById('imgNotice').classList.remove('visible');
+
+  document.getElementById('btnGemini').disabled  = true;
+  document.getElementById('btnChatGPT').disabled = true;
+
+  showToast('🗑️ リセットしました');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== 初期化 =====
+(function init() {
+  for (let i = 0; i < 3; i++) addItem();
+})();
+</script>
+</body>
+</html>
