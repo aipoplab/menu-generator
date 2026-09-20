@@ -795,6 +795,7 @@ function generatePrompt() {
         mapping: photoItems.map((name, i) => ({ photo_number: i + 1, used_for_menu_item: name })),
         rules: [
           '添付写真は、mappingで対応付けたメニュー品目のビジュアル素材として、元写真のまま使用すること',
+          '複数枚の写真が添付されている場合、photo_number=1はmapping内で1番目に記載されたused_for_menu_item、photo_number=2は2番目のused_for_menu_item…というように、添付順とmapping配列の記載順は完全に一致している。この対応関係を絶対に入れ替えたり、他の品目の写真と混同したりしないこと。特に写真同士が似た商品（例：コーヒー豆の袋とカップに注がれたコーヒーなど）の場合でも、mappingの対応関係を厳守し、誤って別の品目に配置しないこと',
           '写真の対応関係（mapping）やphoto_numberを、文字やラベルとして画像内に描き込まないこと',
           '添付されていないメニューには、商品の写真やイラストを勝手に追加しないこと',
           '添付画像に対して許可される処理は、拡大・縮小・必要な範囲のクロップ（切り抜き）のみ',
